@@ -2,6 +2,7 @@ import os
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
+import tkinter
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
 images = []
@@ -40,20 +41,30 @@ y_location_slider = ""
 
 photo_x_max = ""
 photo_y_max = ""
+relpath = ""
+
+fonts = {
+    'Impact': '/System/Library/Fonts/Supplemental/Impact.ttf',
+    'Arial': '/System/Library/Fonts/Supplemental/Arial.ttf',
+    'Times New Roman': '/System/Library/Fonts/Supplemental/Times New Roman.ttf'
+}
 
 
 # def watermark_image():
 def print_info(event):
-    # global mod_image
-    watermark = text_input.get()
 
-    draw = ImageDraw.Draw(mod_image)
-    font = ImageFont.load_default()
+    image1 = Image.open(relpath)
+    watermark = text_input.get()
+    style = font_variable.get()
+
+    draw = ImageDraw.Draw(image1)
+    font_style = fonts[style]
+    font = ImageFont.truetype(font_style, size_slider.get())
     draw.text((x_location_slider.get(), y_location_slider.get()),
               watermark, (255, 255, 255), font=font)
 
-    mod_image.thumbnail(size, Image.ANTIALIAS)
-    test = ImageTk.PhotoImage(mod_image)
+    image1.thumbnail(size, Image.ANTIALIAS)
+    test = ImageTk.PhotoImage(image1)
     label1 = Label(image=test)
     label1.image = test
     canvas.destroy()
@@ -61,35 +72,26 @@ def print_info(event):
     labels.append(label1)
 
 
-# def print_info(event):
-#     # global text_input, size_slider, font_input
-#     # print(text_input.get())
-#     # print(size_slider.get())
-#     # print(font_variable.get())
-#     # print(x_location_slider.get())
-#     # print(y_location_slider.get())
-#     pass
-
-
 def add_text_to_image():
     global text_input, size_slider, font_variable, x_location_slider, y_location_slider, photo_y_max, photo_x_max
-    print("Photo x max:", photo_x_max, "Photo y max:", photo_y_max)
+    # print("Photo x max:", photo_x_max, "Photo y max:", photo_y_max)
     pop_up = Toplevel(window)
     pop_up.title("Add Text")
     pop_up.config(padx=20, pady=10, bg=POPUP_COLOR)
     # Text
     text_label = Label(pop_up, text='Text ', bg=POPUP_COLOR)
     text_label.grid(pady=2, column=1, row=0)
-    text_input = Entry(pop_up, width=35, fg=POPUP_COLOR)
+    text_input = tkinter.Entry(pop_up, width=35, fg=POPUP_COLOR)
+    # text_input.config(comm)
     text_input.grid(pady=2, column=2, row=0, columnspan=3)
     text_input.insert(0, 'Text')
     # Font
     font_label = Label(pop_up, text='Font ', bg=POPUP_COLOR)
     font_label.grid(pady=2, column=1, row=1)
     font_variable = StringVar()
-    font_variable.set(font_options[0])
+    font_variable.set('Impact')
     font_input = OptionMenu(pop_up, font_variable, *
-                            font_options, command=print_info)
+                            fonts.keys(), command=print_info)
     font_input.config(width=33, bg=POPUP_COLOR, fg='black')
     font_input.grid(pady=2, column=2, row=1, columnspan=3)
     # Font Size
@@ -121,25 +123,30 @@ def add_text_to_image():
     y_location_slider.config(bg=POPUP_COLOR, fg='black')
     y_location_slider.grid(pady=2, column=4, row=3)
     # Button
-    # info_button = Button(pop_up, text='Add Text', fg='black', highlightbackground='black',
-    #                      width=20, command=watermark_image)
-    # info_button.grid(pady=2, column=1, row=100, padx=10, columnspan=4)
+    info_button = Button(pop_up, text='Add Text', fg='black', highlightbackground='black',
+                         width=20, command=lambda event: print_info(event))
+    info_button.grid(pady=2, column=1, row=100, padx=10, columnspan=4)
+
+    # print_info(event=)
 
 
 def add_image():
-    global mod_image, photo_y_max, photo_x_max
+    global mod_image, photo_y_max, photo_x_max, relpath
     for widget in labels:
         widget.destroy()
     filename = filedialog.askopenfilename(initialdir=start, title="Select Images",
-                                          filetypes=(("images", ".png"), ("images", ".jpg"), ("images", ".jpeg")))
+                                          filetypes=(("Images", ".png"), ("Images", ".jpg"), ("Images", ".jpeg")))
+    # filetypes=(("Images", (".png", ".jpg", ".jpeg"))))
     relpath = os.path.relpath(filename)
     image1 = Image.open(relpath)
-    print("IMAGE 1 SIZE:", image1.size)
+
+    # print("IMAGE 1 SIZE:", image1.size)
 
     photo_x_max = image1.size[0]
     photo_y_max = image1.size[1]
 
     mod_image = image1
+
     images.append(
         {"PIL_image": image1, "file_name": relpath.split("/")[-1].split(".")[0]})
     image1.thumbnail(size, Image.ANTIALIAS)
