@@ -46,6 +46,7 @@ photo_y_max = 500
 # photo_y_max = ""
 relpath = ""
 color_picker = (255, 255, 255)
+water_marked_pic = ""
 
 fonts = {
     'Impact': '/System/Library/Fonts/Supplemental/Impact.ttf',
@@ -62,7 +63,7 @@ def change_color():
 
 
 def print_info(event):
-
+    global water_marked_pic
     image1 = Image.open(relpath)
     watermark = text_input.get()
     style = font_variable.get()
@@ -73,6 +74,8 @@ def print_info(event):
     draw.text((x_location_slider.get(), y_location_slider.get()),
               watermark, color_picker, font=font)
 
+    water_marked_pic = image1
+
     image1.thumbnail(size, Image.ANTIALIAS)
     test = ImageTk.PhotoImage(image1)
     label1 = Label(image=test)
@@ -80,6 +83,12 @@ def print_info(event):
     canvas.destroy()
     label1.grid(column=1, row=1, columnspan=2)
     labels.append(label1)
+
+
+def save_pic():
+    global water_marked_pic
+    water_marked_pic.save(
+        f"{start}/" + f"{images[0]['file_name']}_watermark.png", "png")
 
 
 def add_text_to_image():
@@ -138,9 +147,9 @@ def add_text_to_image():
     y_location_slider.config(bg=POPUP_COLOR, fg='black')
     y_location_slider.grid(pady=2, column=4, row=3)
     # Button
-    info_button = Button(pop_up, text='Add Text', fg='black', highlightbackground='black',
-                         width=20, command=lambda event: print_info(event))
-    info_button.grid(pady=2, column=1, row=100, padx=10, columnspan=4)
+    save_pic_button = Button(pop_up, text='Save Image', fg='black', highlightbackground='black',
+                             width=20, command=save_pic)
+    save_pic_button.grid(pady=2, column=1, row=100, padx=10, columnspan=4)
 
     # print_info(event=)
 
