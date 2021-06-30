@@ -6,14 +6,14 @@ from tkinter.colorchooser import askcolor
 import tkinter
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import math
+from pathlib import Path
 
 images = []
 
 window = Tk()
 start = '/Users/brock/Desktop/icons'
-# window.geometry("800x800")
 size = (350, 400)
-# size = (800, 800)
+
 
 window.title("Watermark")
 window.config(padx=20, pady=10, bg="grey",
@@ -25,15 +25,6 @@ font_options = ['Times', 'Arial', 'Duude']
 v = font_options[0]
 
 mod_image = ""
-
-# text_value = ""
-
-
-def show_labels():
-    for x in range(0, len(labels)):
-        labels[x].grid(column=1, row=x+1)
-
-
 POPUP_COLOR = "lightgrey"
 text_input = ""
 size_slider = ""
@@ -42,17 +33,28 @@ x_location_slider = ""
 y_location_slider = ""
 photo_x_max = 500
 photo_y_max = 500
-# photo_x_max = ""
-# photo_y_max = ""
 relpath = ""
 color_picker = (255, 255, 255)
 water_marked_pic = ""
+font_start = Path('/System/Library/Fonts/Supplemental')
+# fonts = {
+#     'Impact': '/System/Library/Fonts/Supplemental/Impact.ttf',
+#     'Arial': '/System/Library/Fonts/Supplemental/Arial.ttf',
+#     'Times New Roman': '/System/Library/Fonts/Supplemental/Times New Roman.ttf'
+# }
+fonts = {}
 
-fonts = {
-    'Impact': '/System/Library/Fonts/Supplemental/Impact.ttf',
-    'Arial': '/System/Library/Fonts/Supplemental/Arial.ttf',
-    'Times New Roman': '/System/Library/Fonts/Supplemental/Times New Roman.ttf'
-}
+
+def get_fonts():
+    font_array = []
+    with os.scandir(font_start) as entries:
+        for entry in entries:
+            if entry.is_file():
+                font_array.append(entry.name)
+    font_array.sort()
+    for font in font_array:
+        name = font.split(".")[0]
+        fonts[name] = f"{font_start}/{font}"
 
 
 def change_color():
@@ -101,7 +103,6 @@ def add_text_to_image():
     text_label = Label(pop_up, text='Text ', bg=POPUP_COLOR)
     text_label.grid(pady=2, column=1, row=0)
     text_input = tkinter.Entry(pop_up, width=35, fg=POPUP_COLOR)
-    # text_input.config(comm)
     text_input.grid(pady=2, column=2, row=0, columnspan=3)
     text_input.insert(0, 'Text')
     # Font
@@ -122,12 +123,10 @@ def add_text_to_image():
                         orient='horizontal', variable=current_value, command=print_info)
     size_slider.config(bg=POPUP_COLOR, fg='black')
     size_slider.grid(pady=2, column=2, row=2, columnspan=2)
-
     # Color
     color_button = Button(pop_up, text='Color', fg='black', highlightbackground='black',
                           width=20, command=change_color)
     color_button.grid(pady=2, column=4, row=2, padx=10)
-
     # Text Location Horizontal
     x_location_label = Label(pop_up, text='X Location ', bg=POPUP_COLOR)
     x_location_label.grid(pady=2, column=1, row=3)
@@ -146,12 +145,10 @@ def add_text_to_image():
                               orient='vertical', variable=y_value, command=print_info)
     y_location_slider.config(bg=POPUP_COLOR, fg='black')
     y_location_slider.grid(pady=2, column=4, row=3)
-    # Button
+    # Save Pic Button
     save_pic_button = Button(pop_up, text='Save Image', fg='black', highlightbackground='black',
                              width=20, command=save_pic)
     save_pic_button.grid(pady=2, column=1, row=100, padx=10, columnspan=4)
-
-    # print_info(event=)
 
 
 def add_image():
@@ -160,11 +157,8 @@ def add_image():
         widget.destroy()
     filename = filedialog.askopenfilename(initialdir=start, title="Select Images",
                                           filetypes=(("Images", ".png"), ("Images", ".jpg"), ("Images", ".jpeg")))
-    # filetypes=(("Images", (".png", ".jpg", ".jpeg"))))
     relpath = os.path.relpath(filename)
     image1 = Image.open(relpath)
-
-    # print("IMAGE 1 SIZE:", image1.size)
 
     photo_x_max = image1.size[0]
     photo_y_max = image1.size[1]
@@ -180,7 +174,6 @@ def add_image():
     canvas.destroy()
     label1.grid(column=1, row=1, columnspan=2)
     labels.append(label1)
-    # create_text_label()
     if label1:
         add_text_button.config(highlightbackground='white',
                                command=add_text_to_image)
@@ -204,5 +197,7 @@ add_image_button.grid(column=1, row=0, padx=10, pady=5)
 add_text_button = Button(text='Add Text', fg='black', highlightbackground='black',
                          width=20, command=need_image)
 add_text_button.grid(column=2, row=0, padx=10, pady=5)
-# add_text_to_image()
+
+get_fonts()
+
 window.mainloop()
