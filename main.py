@@ -2,8 +2,10 @@ import os
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter.colorchooser import askcolor
 import tkinter
 from PIL import Image, ImageTk, ImageDraw, ImageFont
+import math
 
 images = []
 
@@ -38,10 +40,12 @@ size_slider = ""
 font_variable = ""
 x_location_slider = ""
 y_location_slider = ""
-
-photo_x_max = ""
-photo_y_max = ""
+photo_x_max = 500
+photo_y_max = 500
+# photo_x_max = ""
+# photo_y_max = ""
 relpath = ""
+color_picker = (255, 255, 255)
 
 fonts = {
     'Impact': '/System/Library/Fonts/Supplemental/Impact.ttf',
@@ -50,7 +54,13 @@ fonts = {
 }
 
 
-# def watermark_image():
+def change_color():
+    global color_picker
+    colors = askcolor(title="Choose Color")
+    temp = colors[0]
+    color_picker = tuple([math.floor(x) for x in temp])
+
+
 def print_info(event):
 
     image1 = Image.open(relpath)
@@ -61,7 +71,7 @@ def print_info(event):
     font_style = fonts[style]
     font = ImageFont.truetype(font_style, size_slider.get())
     draw.text((x_location_slider.get(), y_location_slider.get()),
-              watermark, (255, 255, 255), font=font)
+              watermark, color_picker, font=font)
 
     image1.thumbnail(size, Image.ANTIALIAS)
     test = ImageTk.PhotoImage(image1)
@@ -102,7 +112,12 @@ def add_text_to_image():
     size_slider = Scale(pop_up, from_=10, to=100,
                         orient='horizontal', variable=current_value, command=print_info)
     size_slider.config(bg=POPUP_COLOR, fg='black')
-    size_slider.grid(pady=2, column=2, row=2, columnspan=3)
+    size_slider.grid(pady=2, column=2, row=2, columnspan=2)
+
+    # Color
+    color_button = Button(pop_up, text='Color', fg='black', highlightbackground='black',
+                          width=20, command=change_color)
+    color_button.grid(pady=2, column=4, row=2, padx=10)
 
     # Text Location Horizontal
     x_location_label = Label(pop_up, text='X Location ', bg=POPUP_COLOR)
@@ -180,5 +195,5 @@ add_image_button.grid(column=1, row=0, padx=10, pady=5)
 add_text_button = Button(text='Add Text', fg='black', highlightbackground='black',
                          width=20, command=need_image)
 add_text_button.grid(column=2, row=0, padx=10, pady=5)
-
+# add_text_to_image()
 window.mainloop()
